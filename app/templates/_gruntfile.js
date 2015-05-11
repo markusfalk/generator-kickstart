@@ -80,7 +80,7 @@ module.exports = function(grunt) {
           excludeBuiltins: true,
           patterns: [
             {
-              match: /{(app|deferred):{([\w|\-]{0,})}}/g,
+              match: /{(app|deferred):{([\w|\-]*)}}/g,
               replacement: function (match, type, file) {
 
                 // use regular file
