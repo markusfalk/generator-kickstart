@@ -89,7 +89,29 @@ module.exports = function(grunt) {
                 type = type === 'deferred' ? 'app/_' + type : type;
 
                 // get file for replacement
-                return grunt.file.read('components/' + type + '/' + file + '/' + file + '.html');
+                output =  grunt.file.read('components/' + type + '/' + file + '/' + file + '.html');
+
+                // check if output include some 'app placeholder'
+                match = output.match( /{(app):{([\w|\-]{0,})}}/g );
+                if( match !== null ) {
+
+                  // replace each placeholder with its accociated file content
+                  match.forEach(function(elem){
+                    var
+                    inner_match = elem.replace( /[{}]/g,'').split(':'),
+                    inner_type = inner_match[0],
+                    inner_file = inner_match[1],
+                    inner_regex = new RegExp("{("+inner_type+"):{"+inner_file+"}}", "g"),
+
+                    inner_output =  grunt.file.read('components/' + inner_type + '/' + inner_file + '/' + inner_file + '.html');
+
+                    // write file content into main output
+                    output = output.replace( inner_regex , inner_output );
+                  });
+
+                }
+
+                return output;
               }
             },
             {
