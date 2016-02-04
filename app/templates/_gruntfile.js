@@ -2,8 +2,57 @@ module.exports = function(grunt) {
 
   'use strict';
 
+<% if (ProjectServer) { %>
+  var fileExists = require('file-exists'),
+  fs = require('fs'),
+  key = function() {
+    if (fileExists('clientConfig.json')) {
+      key = fs.readFileSync((require('userhome')(grunt.file.readJSON('clientConfig.json').keyPath)));
+    } else {
+      key = fs.readFileSync((require('userhome')('.ssh/id_rsa')));
+    }
+  },
+
+  passphraseConfig = function() {
+    if (fileExists('clientConfig.json')) {
+      passphraseConfig = grunt.file.readJSON('clientConfig.json').passphrase;
+    } else {
+      passphraseConfig = '';
+    }
+  };
+
+  key();
+  passphraseConfig();
+<% } %>
+
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+
+    auto_install: {
+      local: {
+        options: {
+          failOnError: true,
+          bower: false
+        }
+      }
+    },
+<% if (ProjectServer) { %>
+    environments: {
+      options: {
+        local_path: './build',
+      },
+      preview: {
+        options: {
+          username: grunt.file.readJSON('hostConfig.json').username,
+          host: grunt.file.readJSON('hostConfig.json').hostServer,
+          deploy_path: grunt.file.readJSON('hostConfig.json').deployPath,
+          current_symlink: 'web',
+          releases_to_keep: 2,
+          passphrase: passphraseConfig,
+          privateKey: key
+        }
+      }
+    },<% } %>
 
     watch: {
       options: {
@@ -50,7 +99,7 @@ module.exports = function(grunt) {
       },
       img_background: {
         options: { livereload: true },
-        files: 'components/**/*.{png,gif,jpg,svg}',
+        files: 'components/**/*.{png,gif,jpg,svg,ico}',
         tasks: ['clean:css', 'imagemin:backgrounds' , 'compass:development', 'clean:development'],
       },
 
@@ -69,7 +118,7 @@ module.exports = function(grunt) {
         httpFontsPath: '/assets/font',
         httpImagesPath: '/assets/img',
         imagesDir: 'build/assets/img',
-        noLineComments: true,
+        noLineComments: false,
         require: 'sass-css-importer',
         sassDir: 'components',
         specify: ['components/*.scss', 'components/app/_deferred/**/*.scss']
@@ -80,9 +129,19 @@ module.exports = function(grunt) {
           sourcemap: true
         }
       },
-      production: {
+      <% if (ProjectServer) { %>
+      preview: {
+        options: {
+          environment: 'development',
+          sourcemap: false,
+        }
+      },
+      <% } %>
+      live: {
         options: {
           environment: 'production',
+          noLineComments: true,
+          sourcemap: true,
           httpPath: '/' // . = relative
         }
       }
@@ -145,7 +204,15 @@ module.exports = function(grunt) {
           optimize: 'none'
         }
       },
-      production: {
+      <% if (ProjectServer) { %>
+      preview: {
+        options: {
+          generateSourceMaps: false,
+          optimize: 'none'
+        }
+      },
+      <% } %>
+      live: {
         options: {
           generateSourceMaps: false,
           optimize: 'uglify'
@@ -166,7 +233,18 @@ module.exports = function(grunt) {
           dest: 'build/assets/js/deferred'
         }]
       },
-      deferred_production: {
+      <% if (ProjectServer) { %>
+      deferred_preview: {
+        files: [{
+          expand: true,
+          flatten: true,
+          cwd: 'components/app/_deferred',
+          src: ['**/*.js', '!**/test-*.js'],
+          dest: 'build/assets/js/deferred'
+        }]
+      },
+      <% } %>
+      deferred_live: {
         files: [{
           expand: true,
           flatten: true,
@@ -197,7 +275,7 @@ module.exports = function(grunt) {
           flatten: true,
           expand: true,
           cwd: 'components/app',
-          src: ['**/*.{gif,jpg,png,svg}'],
+          src: ['**/*.{gif,jpg,png,svg,ico}'],
           dest: 'build/assets/img'
         }]
       }
@@ -289,16 +367,6 @@ module.exports = function(grunt) {
           dest: 'build/assets/json'
         }],
         verbose: true
-      },
-      favicon: {
-        files: [{
-          flatten: true,
-          expand: true,
-          cwd: '.',
-          src: ['favicon.ico', 'apple-touch-icon.png', 'windows-tile-icon.png'],
-          dest: 'build/assets/img'
-        }],
-        verbose: true
       }
     },
 
@@ -343,6 +411,7 @@ module.exports = function(grunt) {
 
   });
 
+  grunt.loadNpmTasks('grunt-auto-install');
   grunt.loadNpmTasks('grunt-accessibility');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-compass');
@@ -360,8 +429,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-replace');
   grunt.loadNpmTasks('grunt-scss-lint');
   grunt.loadNpmTasks('grunt-sync');
+  <% if (ProjectServer) { %>grunt.loadNpmTasks('grunt-ssh-deploy');<% } %>
 
   grunt.registerTask('default', [
+    'auto_install',
     'clean:build',
     'replace',
     'imagemin',
@@ -373,17 +444,31 @@ module.exports = function(grunt) {
     'modernizr'
   ]);
 
-  grunt.registerTask('production', [
+  grunt.registerTask('live', [
     'clean:build',
     'replace',
     'imagemin',
     'sync',
-    'compass:production',
-    'requirejs:production',
-    'uglify:deferred_production',
+    'compass:live',
+    'requirejs:live',
+    'uglify:deferred_live',
     'uglify:external',
     'modernizr'
-   ]);
+  ]);
+  <% if (ProjectServer) { %>
+  grunt.registerTask('preview', [
+    'auto_install',
+    'clean:build',
+    'replace',
+    'imagemin',
+    'sync',
+    'compass:preview',
+    'requirejs:preview',
+    'uglify:deferred_preview',
+    'uglify:external',
+    'modernizr',
+    'ssh_deploy:preview'
+  ]);<% } %>
 
   grunt.registerTask('test', [
     'csslint',

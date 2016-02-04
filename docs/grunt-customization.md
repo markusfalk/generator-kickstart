@@ -6,7 +6,10 @@ Builds the whole project into ```build/```.
 ### grunt watch
 The ```watch```-task is used during development and smartly builds only what is needed.
 
-### grunt production
+### grunt preview
+Builds minified and optimized assets for deployment into ```build/```. Deploy build to any Server with ssh-deploy. Can be used by other deployment scripts to get the whole front-end production ready.
+
+### grunt live
 Builds minified and optimized assets for deployment into ```build/```.
 Can be used by other deployment scripts to get the whole front-end production ready.
 

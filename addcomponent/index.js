@@ -18,7 +18,7 @@ string = require('underscore.string'),
 yeoman = require('yeoman-generator'),
 lineNumber = require('line-number'),
 
-AddcomponentGenerator = yeoman.generators.NamedBase.extend({
+AddcomponentGenerator = yeoman.NamedBase.extend({
 
   /**
    * Loads package.json and binds events.

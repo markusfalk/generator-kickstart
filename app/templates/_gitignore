@@ -11,3 +11,4 @@ build
 node_modules
 documentation
 ./vendor
+<% if (ProjectServer) { %>clientConfig.json<% } %>

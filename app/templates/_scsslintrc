@@ -7,3 +7,23 @@ linters:
     enabled: false
   Comment:
     enabled: false
+  IdSelector:
+    enabled: false
+  PlaceholderInExtend:
+    enabled: false
+  NestingDepth:
+    enabled: false
+  ImportantRule:
+    enabled: false
+  SpaceAfterComma:
+    enabled: false
+  ColorVariable:
+    enabled: false
+  StringQuotes:
+    enabled: false
+  QualifyingElement:
+    enabled: false
+  SelectorDepth
+    enabled: false
+  VendorPrefix:
+    enabled: false
