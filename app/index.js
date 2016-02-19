@@ -19,7 +19,7 @@ string = require('underscore.string'),
 yeoman = require('yeoman-generator'),
 yosay = require('yosay'),
 
-KickstartGenerator = yeoman.generators.Base.extend({
+KickstartGenerator = yeoman.Base.extend({
 
   /**
    * Loads package.json and waits for callback to finish.
