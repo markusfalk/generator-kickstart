@@ -40,12 +40,12 @@
     "chalk": "^1.1.1",
     "line-number": "^0.1.0",
     "mkdirp": "^0.5.1",
-    "underscore.string": "^3.2.0",
-    "yeoman-generator": "^0.20.3",
-    "yosay": "^1.0.5"
+    "underscore.string": "^3.2.3",
+    "yeoman-generator": "^0.22.5",
+    "yosay": "^1.1.0"
   },
   "devDependencies": {
-    "mocha": "^2.3.0"
+    "mocha": "^2.4.5"
   },
   "peerDependencies": {
     "yo": ">=1.0.0"
