@@ -18,8 +18,32 @@ string = require('underscore.string'),
 yeoman = require('yeoman-generator'),
 lineNumber = require('line-number'),
 
-AddcomponentGenerator = yeoman.generators.NamedBase.extend({
+AddcomponentGenerator = yeoman.Base.extend({
 
+  /**
+   * Sets required arguments.
+   * @function constructor
+   * @private
+   */
+  constructor: function () {
+    yeoman.Base.apply(this, arguments);
+
+    this.argument('name', {
+      required: true,
+      type: String,
+      desc: 'The component name.'
+    });
+
+    // take care of error handling
+    this.on('error', function(message) {
+      // print error message
+      this.log.error(message);
+      // exit shell
+      process.exit(5);
+    });
+
+  },
+  
   /**
    * Loads package.json and binds events.
    * @function init
